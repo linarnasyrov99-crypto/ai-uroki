@@ -60,6 +60,20 @@
   .rules ul { margin: 0; padding-left: 20px; }
   .rules li { margin-bottom: 6px; }
   footer { margin-top: 32px; color: var(--muted); font-size: 14px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .nav a { font-size: 14px; font-weight: 800; text-decoration: none; color: var(--ink); padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); }
+  .nav a.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .theory { padding: 30px 0 10px; border-top: 1px solid var(--line); }
+  .theory h2 { margin-top: 0; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+  .tcard { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; border-top: 6px solid var(--c); }
+  .tcard h3 { margin: 0 0 6px; font-size: 20px; }
+  .tcard p { margin: 0 0 8px; font-size: 15px; color: var(--muted); }
+  .tcard .an { font-weight: 700; color: var(--ink); font-size: 14px; margin: 0; }
+  .pdf { display: inline-block; margin-top: 6px; padding: 12px 20px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; text-decoration: none; }
+  .sub { margin: 22px 0 8px; font-size: 18px; }
+  .sub:first-of-type { margin-top: 4px; }
+  @media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
   @media (max-width: 520px) {
     .step { grid-template-columns: 1fr; gap: 10px; }
     .num { width: 44px; height: 44px; font-size: 20px; border-radius: 13px; }
@@ -70,19 +84,16 @@
 <body>
 <div class="wrap">
   <header>
+    <nav class="nav"><a href="../urok-1/" class="on">Урок 1</a><a href="../urok-2/">Урок 2</a></nav>
     <span class="kicker">Урок 1 · Настройка рабочего окружения</span>
     <h1>Настраиваем ИИ-агента под себя</h1>
     <p class="intro">За этот урок агент узнает тебя и получит правила, научится защищать твои файлы, понимать голос и наведёт порядок в компьютере.</p>
     <div class="how">
       <h3>Как проходить урок</h3>
-      <ol>
-        <li>Создай папку для работы с ИИ, например «ИИ» в Документах. Это твоё рабочее окружение: все проекты будут жить внутри.</li>
-        <li>Открой в этой папке своего агента — Claude Code или Codex.</li>
-        <li>Иди по шагам сверху вниз: копируй промт, вставляй агенту, отвечай на его вопросы.</li>
-        <li>Когда шаг получился, отметь галочки внизу шага. Отметки сохраняются в этом браузере.</li>
-      </ol>
+      <ol><li>Создай папку для работы с ИИ, например «ИИ» в Документах. Это твоё рабочее окружение: все проекты будут жить внутри.</li><li>Открой в этой папке своего агента — Claude Code или Codex.</li><li>Иди по шагам сверху вниз: копируй промт, вставляй агенту, отвечай на его вопросы.</li><li>Когда шаг получился, отметь галочки внизу шага. Отметки сохраняются в этом браузере.</li></ol>
     </div>
   </header>
+
   <div class="progress"><span id="ptext">Пройдено 0%</span><div class="bar"><i id="pbar"></i></div></div>
   <main>
 <section class="step" id="s1"><div class="num">1</div><div class="body"><p class="tag">AGENTS.md</p><h2>Правила для агента</h2><p class="lead">Агент задаст 5 вопросов о тебе и соберёт файл правил: как с тобой говорить, что можно делать самому, а где остановиться и спросить. Этот файл он читает в каждом разговоре.</p><div class="prompt"><button class="copy" data-for="p1" type="button">Скопировать промт</button><pre id="p1">Нужно собрать файл AGENTS.md — мои правила для тебя.
@@ -116,7 +127,7 @@
 
 Сначала покажи мне готовый текст, после моего «да» сохрани AGENTS.md в рабочую папку.
 Если ты Claude Code — создай рядом файл CLAUDE.md с одной строкой @AGENTS.md, чтобы ты читал эти правила в каждом разговоре.
-Когда закончим, предложи сразу собрать INDEX.md и сторожей, если их ещё нет.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s1-0"><span>В рабочей папке лежит AGENTS.md с ответами на 5 вопросов и правилами выше</span></label></li><li><label><input type="checkbox" data-key="s1-1"><span>Для Claude Code рядом есть CLAUDE.md со строкой @AGENTS.md</span></label></li><li><label><input type="checkbox" data-key="s1-2"><span>В новом чате агент отвечает по-русски и знает правила (спросить: «какие у тебя правила со мной?»)</span></label></li></ul></div></div></section>
+Когда закончим, предложи сразу собрать INDEX.md и сторожей, если их ещё нет.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s10-0"><span>В рабочей папке лежит AGENTS.md с ответами на 5 вопросов и правилами выше</span></label></li><li><label><input type="checkbox" data-key="s10-1"><span>Для Claude Code рядом есть CLAUDE.md со строкой @AGENTS.md</span></label></li><li><label><input type="checkbox" data-key="s10-2"><span>В новом чате агент отвечает по-русски и знает правила (спросить: «какие у тебя правила со мной?»)</span></label></li></ul></div></div></section>
 <section class="step" id="s2"><div class="num">2</div><div class="body"><p class="tag">INDEX.md и сторожа</p><h2>Оглавление и защита</h2><p class="lead">INDEX.md — оглавление твоих файлов: агент сразу знает, где что лежит. Сторожа — маленькие программы-охранники: не дают агенту удалить всё подряд и прочитать файлы с паролями.</p><div class="prompt"><button class="copy" data-for="p2" type="button">Скопировать промт</button><pre id="p2">Мы закончили с AGENTS.md. Теперь собери две вещи: INDEX.md и сторожей. Я не программист: объясняй по-русски простыми словами и перед каждым действием коротко говори, что делаешь.
 
 ЧАСТЬ 1. INDEX.md — оглавление моих файлов
@@ -147,16 +158,15 @@
    - удаление всей рабочей папки НЕ выполняй по-настоящему, а передай текст этой команды сторожу напрямую и покажи, что он её блокирует;
    - создай и удали тестовый файл внутри рабочей папки — это должно пройти.
    Если сторож не срабатывает, скажи мне перезапустить Claude Code и проверь снова.
-9. В конце коротко напиши: что поставлено, где лежит и как отключить сторожа, если понадобится. Добавь строку про сторожей в INDEX.md.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s2-0"><span>В рабочей папке есть INDEX.md, в начале дата</span></label></li><li><label><input type="checkbox" data-key="s2-1"><span>Сторожа лежат в ~/.claude/guard/ и подключены в settings.json</span></label></li><li><label><input type="checkbox" data-key="s2-2"><span>Три проверки сторожа показаны: .env — стоп, удаление папки — стоп, тестовый файл — прошёл</span></label></li></ul></div></div></section>
+9. В конце коротко напиши: что поставлено, где лежит и как отключить сторожа, если понадобится. Добавь строку про сторожей в INDEX.md.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s20-0"><span>В рабочей папке есть INDEX.md, в начале дата</span></label></li><li><label><input type="checkbox" data-key="s20-1"><span>Сторожа лежат в ~/.claude/guard/ и подключены в settings.json</span></label></li><li><label><input type="checkbox" data-key="s20-2"><span>Три проверки сторожа показаны: .env — стоп, удаление папки — стоп, тестовый файл — прошёл</span></label></li></ul></div></div></section>
 <section class="step" id="s3"><div class="num">3</div><div class="body"><p class="tag">Handy + GigaAM v3</p><h2>Диктовка голосом</h2><p class="lead">Говорить быстрее, чем печатать. Handy превращает голос в текст в любом окне, русская модель GigaAM v3 работает прямо на компьютере, без интернета.</p><div class="prompt"><button class="copy" data-for="p3" type="button">Скопировать промт</button><pre id="p3">Поставь мне программу Handy для диктовки голосом и русскую модель к ней. Я не программист: перед каждой командой объясняй по-русски, что она делает.
 1. Определи, какой у меня компьютер — Mac или Windows.
 2. Установи Handy: на Mac — командой brew install --cask handy (если Homebrew нет — объясни, что это, и поставь его; пароль от компьютера я введу сам); на Windows — командой winget install cjpais.Handy.
 3. Скажи, какие разрешения открыть в системе и где они лежат (микрофон; на Mac ещё «Универсальный доступ»).
 4. Объясни, где в Handy выбрать модель GigaAM v3, и проверь, что она скачалась.
 5. Настрой клавишу для диктовки: на Mac — fn вместо сочетания по умолчанию; на Windows клавиши fn нет — предложи удобное сочетание (например, правый Ctrl) и объясни, как его назначить.
-6. В конце попроси меня надиктовать фразу в любое поле и проверь, что текст появился.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s3-0"><span>Handy установлен и запускается</span></label></li><li><label><input type="checkbox" data-key="s3-1"><span>Выданы разрешения (микрофон; на Mac — «Универсальный доступ»)</span></label></li><li><label><input type="checkbox" data-key="s3-2"><span>Выбрана и скачана модель GigaAM v3</span></label></li><li><label><input type="checkbox" data-key="s3-3"><span>Диктовка по клавише работает: фраза появилась в поле</span></label></li></ul></div></div></section>
-<section class="step" id="s4"><div class="num">4</div><div class="body"><p class="tag">Очистка и раскладка</p><h2>Порядок в компьютере</h2><p class="lead">Агент найдёт, что занимает место, предложит понятные папки и разложит файлы. Ничего не удаляет: всё лишнее — в папку «На удаление», с журналом, чтобы можно было вернуть.</p><div class="tabs" role="tablist"><button class="tab on" data-tab="s4-win" type="button">Windows</button><button class="tab" data-tab="s4-mac" type="button">Mac</button></div>
-<div class="pane on" id="s4-win"><div class="prompt"><button class="copy" data-for="p4w" type="button">Скопировать промт</button><pre id="p4w">Наведи порядок на моём компьютере с Windows. Я не программист: объясняй простыми словами и по-русски.
+6. В конце попроси меня надиктовать фразу в любое поле и проверь, что текст появился.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s30-0"><span>Handy установлен и запускается</span></label></li><li><label><input type="checkbox" data-key="s30-1"><span>Выданы разрешения (микрофон; на Mac — «Универсальный доступ»)</span></label></li><li><label><input type="checkbox" data-key="s30-2"><span>Выбрана и скачана модель GigaAM v3</span></label></li><li><label><input type="checkbox" data-key="s30-3"><span>Диктовка по клавише работает: фраза появилась в поле</span></label></li></ul></div></div></section>
+<section class="step" id="s4"><div class="num">4</div><div class="body"><p class="tag">Очистка и раскладка</p><h2>Порядок в компьютере</h2><p class="lead">Агент найдёт, что занимает место, предложит понятные папки и разложит файлы. Ничего не удаляет: всё лишнее — в папку «На удаление», с журналом, чтобы можно было вернуть.</p><div class="tabs" role="tablist"><button class="tab on" data-tab="s4-0" type="button">Windows</button><button class="tab" data-tab="s4-1" type="button">Mac</button></div><div class="pane on" id="s4-0"><div class="prompt"><button class="copy" data-for="p4w" type="button">Скопировать промт</button><pre id="p4w">Наведи порядок на моём компьютере с Windows. Я не программист: объясняй простыми словами и по-русски.
 Задача: диск C переполнен, нужно освободить место и разложить мои файлы по порядку.
 Шаг 0. Проверь, какие диски есть: второй диск (D), флешка, внешний диск. Покажи, сколько свободно на каждом.
 - Если есть второй диск или внешний, переноси мои файлы туда.
@@ -174,8 +184,7 @@
 4. Дубли и тяжёлые файлы. Найди одинаковые файлы и файлы больше 500 МБ. Покажи таблицу: файл, размер, где лежит, совет (удалить сам(а) / на флешку / в облако / оставить). Сам ничего не трогай.
 5. Что ещё съедает C. Покажи, сколько занимают временные файлы, корзина, кэш браузеров, старые обновления Windows и файл гибернации. Покажи, какие программы запускаются при старте Windows. Объясни по шагам, как я почищу это сам(а) через «Параметры → Система → Память» (Контроль памяти) и «Очистку диска» с кнопкой «Очистить системные файлы». Сам ничего не меняй.
 6. На будущее. Создай файл «Куда класть файлы.txt» на Рабочем столе: инструкция на 5–7 строк по новой структуре.
-В конце: сколько места свободно на C (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s4w-0"><span>Записано, сколько было свободно на C до и после</span></label></li><li><label><input type="checkbox" data-key="s4w-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s4w-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s4w-3"><span>Ученик сам почистил систему через «Контроль памяти» и «Очистку диска»</span></label></li></ul></div></div>
-<div class="pane" id="s4-mac"><div class="prompt"><button class="copy" data-for="p4m" type="button">Скопировать промт</button><pre id="p4m">Наведи порядок на моём Mac. Я не программист: объясняй простыми словами и по-русски.
+В конце: сколько места свободно на C (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s40-0"><span>Записано, сколько было свободно на C до и после</span></label></li><li><label><input type="checkbox" data-key="s40-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s40-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s40-3"><span>Ученик сам почистил систему через «Контроль памяти» и «Очистку диска»</span></label></li></ul></div></div><div class="pane" id="s4-1"><div class="prompt"><button class="copy" data-for="p4m" type="button">Скопировать промт</button><pre id="p4m">Наведи порядок на моём Mac. Я не программист: объясняй простыми словами и по-русски.
 Задача: на диске мало места, нужно освободить его и разложить мои файлы по порядку.
 Шаг 0. Покажи, сколько свободно на диске и подключены ли флешки или внешние диски.
 - Если есть внешний диск, тяжёлые файлы, которые я редко открываю, предлагай переносить туда.
@@ -193,7 +202,7 @@
 4. Дубли и тяжёлые файлы. Найди одинаковые файлы и файлы больше 500 МБ. Покажи таблицу: файл, размер, где лежит, совет (удалить сам(а) / на флешку / в облако / оставить). Сам ничего не трогай.
 5. Что ещё занимает место. Покажи, сколько занимают Корзина, старые установщики (.dmg) в Загрузках, кэш браузеров, резервные копии iPhone и вложения Сообщений. Покажи, какие программы запускаются при входе в систему. Объясни по шагам, как я почищу это сам(а) через «Системные настройки → Основные → Хранилище». Сам ничего не меняй.
 6. На будущее. Создай на Рабочем столе файл «Куда класть файлы.txt»: инструкция на 5–7 строк по новой структуре.
-В конце: сколько места свободно (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s4m-0"><span>Записано, сколько было свободно до и после</span></label></li><li><label><input type="checkbox" data-key="s4m-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s4m-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s4m-3"><span>Ученик сам почистил систему через «Хранилище»</span></label></li></ul></div></div></div></section>
+В конце: сколько места свободно (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s41-0"><span>Записано, сколько было свободно до и после</span></label></li><li><label><input type="checkbox" data-key="s41-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s41-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s41-3"><span>Ученик сам почистил систему через «Хранилище»</span></label></li></ul></div></div></div></section>
   </main>
   <div class="rules">
     <h3>Красные линии — всегда только ты</h3>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 2 · Коннекторы и скиллы</title>
+<meta name="description" content="Второй урок: как устроен ИИ-агент, плагин Superpowers, свой скилл глубокого исследования, коннекторы Google и Telegram.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF6EE; --card: #FFFFFF; --ink: #1F2A44; --muted: #5B6478; --line: #E7DFD2;
+    --accent: #FF6B4A; --accent-ink: #C2401F; --teal: #1A8C80; --soft: #FFF1CC; --code: #F6F1E7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15192A; --card: #1E2438; --ink: #F1ECE2; --muted: #A9B0C3; --line: #2E3550;
+      --accent: #FF8466; --accent-ink: #FF9C82; --teal: #5FD3C4; --soft: #2B2A26; --code: #171C2D; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 "Manrope", system-ui, sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
+  header { padding: 56px 0 28px; }
+  .kicker { display: inline-block; font-weight: 800; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
+  h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; letter-spacing: -.02em; margin: 10px 0 16px; font-weight: 800; }
+  .intro { font-size: 19px; color: var(--muted); margin: 0; }
+  .how { margin: 28px 0 8px; padding: 22px 22px 8px; background: var(--soft); border-radius: 20px; }
+  .how h3 { margin: 0 0 10px; font-size: 17px; }
+  .how ol { margin: 0; padding-left: 22px; }
+  .how li { margin-bottom: 10px; }
+  .progress { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 0; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .bar { flex: 1; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 99px; transition: width .3s; }
+  .step { display: grid; grid-template-columns: 52px 1fr; gap: 16px; padding: 30px 0; border-top: 1px solid var(--line); }
+  .num { width: 52px; height: 52px; border-radius: 16px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-weight: 800; font-size: 24px; }
+  .body { min-width: 0; }
+  .tag { margin: 2px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+  h2 { margin: 4px 0 10px; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; }
+  .lead { margin: 0 0 18px; color: var(--muted); }
+  .prompt { position: relative; background: var(--code); border: 1px solid var(--line); border-radius: 16px; }
+  .prompt pre { margin: 0; padding: 56px 18px 18px; max-height: 340px; overflow: auto; white-space: pre-wrap; word-break: break-word; font: 400 14px/1.6 "JetBrains Mono", ui-monospace, monospace; }
+  .prompt pre.open { max-height: none; }
+  .copy { position: absolute; top: 10px; right: 10px; border: 0; border-radius: 10px; padding: 9px 14px; background: var(--accent); color: #fff; font: 800 14px "Manrope", sans-serif; cursor: pointer; }
+  .copy.ok { background: var(--teal); }
+  .more { display: block; margin: 8px 0 0; border: 0; background: none; color: var(--accent-ink); font: 600 14px "Manrope", sans-serif; cursor: pointer; padding: 4px 0; }
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--line); border-radius: 12px; margin-bottom: 12px; }
+  .tab { border: 0; border-radius: 9px; padding: 8px 18px; background: transparent; color: var(--ink); font: 800 15px "Manrope", sans-serif; cursor: pointer; }
+  .tab.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .pane { display: none; } .pane.on { display: block; }
+  .done { margin-top: 18px; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+  .done h4 { margin: 0 0 8px; font-size: 15px; }
+  .done ul { list-style: none; margin: 0; padding: 0; }
+  .done li { margin: 8px 0; }
+  .done label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .done input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--teal); }
+  .done input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .rules { margin-top: 36px; padding: 22px; border-radius: 20px; border: 2px solid var(--accent); }
+  .rules h3 { margin: 0 0 10px; }
+  .rules ul { margin: 0; padding-left: 20px; }
+  .rules li { margin-bottom: 6px; }
+  footer { margin-top: 32px; color: var(--muted); font-size: 14px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .nav a { font-size: 14px; font-weight: 800; text-decoration: none; color: var(--ink); padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); }
+  .nav a.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .theory { padding: 30px 0 10px; border-top: 1px solid var(--line); }
+  .theory h2 { margin-top: 0; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+  .tcard { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; border-top: 6px solid var(--c); }
+  .tcard h3 { margin: 0 0 6px; font-size: 20px; }
+  .tcard p { margin: 0 0 8px; font-size: 15px; color: var(--muted); }
+  .tcard .an { font-weight: 700; color: var(--ink); font-size: 14px; margin: 0; }
+  .pdf { display: inline-block; margin-top: 6px; padding: 12px 20px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; text-decoration: none; }
+  .sub { margin: 22px 0 8px; font-size: 18px; }
+  .sub:first-of-type { margin-top: 4px; }
+  @media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) {
+    .step { grid-template-columns: 1fr; gap: 10px; }
+    .num { width: 44px; height: 44px; font-size: 20px; border-radius: 13px; }
+    h2 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav"><a href="../urok-1/">Урок 1</a><a href="../urok-2/" class="on">Урок 2</a></nav>
+    <span class="kicker">Урок 2 · Коннекторы и скиллы</span>
+    <h1>Даём агенту инструменты и доступы</h1>
+    <p class="intro">Сначала разберёмся, как устроен агент. Потом поставим ему рабочие режимы, научим глубоко искать в интернете и подключим Google и Telegram.</p>
+    <div class="how">
+      <h3>Как проходить урок</h3>
+      <ol><li>Открой агента в своей рабочей папке, как в уроке 1.</li><li>Сначала прочитай теорию ниже или пролистай презентацию — 5 минут.</li><li>Практику проходи по шагам сверху вниз. После установки плагинов и инструментов агент попросит перезапустить Claude — это нормально.</li><li>Ключи, пароли и коды вводишь только ты. Если агент просит прислать ключ в чат — не присылай.</li></ol>
+    </div>
+  </header>
+<section class="theory"><p class="tag">Часть 1 · Теория</p><h2>Как устроен ИИ-агент</h2>
+<p class="lead">Четыре слова, которые дальше будут везде. Объясняем на примере кухни.</p>
+<div class="cards">
+<div class="tcard" style="--c:#1A8C80"><h3>Харнес</h3><p>Программа, внутри которой работает ИИ: Claude Code, Codex. Даёт модели руки — файлы, команды, браузер — и правила безопасности.</p><p class="an">Кухня, где работает повар</p></div>
+<div class="tcard" style="--c:#FF6B4A"><h3>Коннектор</h3><p>Доступ агента к твоим сервисам: Google Диск, почта, Telegram. Работает от твоего имени — поэтому подключаем осторожно.</p><p class="an">Поставщик продуктов</p></div>
+<div class="tcard" style="--c:#FFC23D"><h3>Скилл</h3><p>Инструкция под одну повторяющуюся задачу: как делать отчёт, пост, исследование. Агент открывает её сам, когда задача подходит.</p><p class="an">Рецепт</p></div>
+<div class="tcard" style="--c:#7B61FF"><h3>Плагин</h3><p>Готовый набор: несколько скиллов, коннекторы, команды и проверки. Ставится одной командой — но сначала смотрим, что внутри.</p><p class="an">Кухня под ключ</p></div>
+</div>
+<a class="pdf" href="kak-ustroen-ii-agent.pdf" download>Скачать презентацию (PDF)</a>
+<p class="lead" style="margin-top:22px"><b>Часть 2 · Практика.</b> Ставим плагин, собираем свой скилл исследования и подключаем коннекторы.</p></section>
+  <div class="progress"><span id="ptext">Пройдено 0%</span><div class="bar"><i id="pbar"></i></div></div>
+  <main>
+<section class="step" id="s1"><div class="num">1</div><div class="body"><p class="tag">Плагин Superpowers</p><h2>Рабочие режимы агента</h2><p class="lead">Плагин учит агента работать как сильная команда: сначала понять цель, потом план, потом маленькие проверяемые шаги и проверка перед «готово».</p><div class="prompt"><button class="copy" data-for="p1" type="button">Скопировать промт</button><pre id="p1">Поставь мне плагин Superpowers. Я не программист: перед каждой командой объясняй по-русски, что она делает.
+1. Проверь, какие магазины плагинов у меня подключены: claude plugin marketplace list. Если официального магазина anthropics/claude-plugins-official нет — добавь его: claude plugin marketplace add anthropics/claude-plugins-official
+2. Перед установкой коротко расскажи, что внутри Superpowers и кто автор. Если что-то подозрительно — не ставь и скажи почему.
+3. Установи: claude plugin install superpowers@claude-plugins-official
+4. Скажи мне перезапустить Claude, чтобы плагин включился.
+5. После перезапуска (я напишу «перезапустил») перечисли простыми словами 5 главных режимов Superpowers и когда каждый срабатывает. Мне не нужно помнить их названия — ты включаешь их сам.
+6. Допиши в мой AGENTS.md строку: «Если для задачи подходит режим Superpowers — используй его сам, не проси меня вызывать команды».</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s10-0"><span>claude plugin list показывает superpowers</span></label></li><li><label><input type="checkbox" data-key="s10-1"><span>После перезапуска агент перечислил режимы Superpowers</span></label></li><li><label><input type="checkbox" data-key="s10-2"><span>В AGENTS.md есть строка про Superpowers</span></label></li></ul></div></div></section>
+<section class="step" id="s2"><div class="num">2</div><div class="body"><p class="tag">Свой скилл дипресёрча</p><h2>Глубокое исследование</h2><p class="lead">Собираем агенту набор поисковиков и учим его не верить первой ссылке. Три шага: инструменты, свой скилл с правилами, первое исследование по твоей теме.</p><h3 class="sub">2.1 Инструменты</h3><div class="prompt"><button class="copy" data-for="p2a" type="button">Скопировать промт</button><pre id="p2a">Поставь мне инструменты для глубоких исследований в интернете (MCP-серверы). Я не программист: объясняй по-русски, без лишних терминов, и показывай прогресс: «готово 4 из 11».
+
+Правила:
+- Ключи я ввожу сам. Ты даёшь ссылку, где его взять, и готовую команду с меткой КЛЮЧ — я сам вставлю ключ и запущу команду в терминале. Ключ мне в чат не присылай и сам не записывай.
+- Ключи проси строго по одному. Перед каждым одной фразой скажи, что даёт сервис и сколько бесплатно.
+- Если я пишу «пропусти» — пропускай, набор работает и частично.
+- Если сервер с таким именем уже есть — не ломай его, сначала спроси меня.
+
+Шаг 0. Проверь claude --version и node --version. Если Node нет — отправь меня на nodejs.org и жди.
+
+Шаг 1. Шесть инструментов без регистрации, ставь сразу:
+claude mcp add --scope user --transport http parallel-search https://search.parallel.ai/mcp
+claude mcp add --scope user --transport http you-search-free &quot;https://api.you.com/mcp?profile=free&quot;
+claude mcp add --scope user --transport http anysearch https://api.anysearch.com/mcp
+claude mcp add --scope user --transport http rivalsearch https://RivalSearchMCP.fastmcp.app/mcp
+claude mcp add --scope user -e MODE=stdio -e DEFAULT_SEARCH_ENGINE=duckduckgo open-websearch -- npx -y open-websearch@latest
+claude mcp add --scope user playwright -- npx -y @playwright/mcp@latest
+
+Шаг 2. Пять инструментов с бесплатным ключом, по одному, в этом порядке:
+1) Tavily — поиск сразу со ссылками на источники. Ключ: https://app.tavily.com
+   claude mcp add --scope user -e TAVILY_API_KEY=КЛЮЧ tavily -- npx -y tavily-mcp
+2) Firecrawl — превращает любой сайт в чистый текст. Ключ: https://www.firecrawl.dev/app/api-keys
+   claude mcp add --scope user -e FIRECRAWL_API_KEY=КЛЮЧ firecrawl -- npx -y firecrawl-mcp
+3) Exa — поиск по смыслу, а не по словам. Ключ: https://dashboard.exa.ai/api-keys
+   claude mcp add --scope user -e EXA_API_KEY=КЛЮЧ exa -- npx -y exa-mcp-server
+4) Apify — соцсети, карты, маркетплейсы, отзывы. Ключ: https://console.apify.com/settings/integrations
+   claude mcp add --scope user -e APIFY_TOKEN=КЛЮЧ apify -- npx -y @apify/actors-mcp-server --tools docs,actors,apify/rag-web-browser --ui false
+5) Jina — читает PDF и научные статьи. Ключ: https://jina.ai/api-dashboard
+   claude mcp add --scope user jina -- npx -y mcp-remote https://mcp.jina.ai/v1 --header &quot;Authorization: Bearer КЛЮЧ&quot;
+
+Шаг 3. Проверь claude mcp list и покажи итог живыми словами: что подключено, что пропущено и чего я из-за этого пока не смогу.
+Скажи мне полностью закрыть и заново открыть Claude — инструменты поднимаются при старте.
+Если сервер не отвечает и я в России — почти всегда нужен VPN, скажи это прямо.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s20-0"><span>claude mcp list показывает 6 бесплатных инструментов</span></label></li><li><label><input type="checkbox" data-key="s20-1"><span>Подключены ключевые: Tavily, Firecrawl, Exa (остальные по желанию)</span></label></li><li><label><input type="checkbox" data-key="s20-2"><span>После перезапуска агент видит эти инструменты</span></label></li></ul></div><h3 class="sub">2.2 Свой скилл</h3><div class="prompt"><button class="copy" data-for="p2b" type="button">Скопировать промт</button><pre id="p2b">Создай мне скилл deep-research — правила, как ты проводишь глубокие исследования с инструментами, которые мы поставили. Положи его в ~/.claude/skills/deep-research/SKILL.md.
+
+Что должно быть в скилле:
+
+1. Описание (description) — когда его включать: когда я пишу «дипресёрч», «исследуй», «найди всё про», «разбери рынок», «изучи конкурентов», «проверь факты», «собери отзывы», «найди контакты».
+
+2. Таблица «задача → чем брать» по моим инструментам:
+   быстрый ответ со ссылками — Tavily; «не знаю, как это называется» — Exa; прочитать страницу целиком — Firecrawl; соцсети, Google Maps, отзывы, маркетплейсы — Apify; PDF и статьи — Jina; зайти на сайт и покликать — Playwright; перепроверить результат — parallel-search, you-search-free, anysearch, open-websearch; форумы и соцсети широким неводом — rivalsearch.
+
+3. Протокол глубины:
+   - пойми задачу: зачем, какая глубина, география, язык; если всё ясно — не переспрашивай;
+   - собери карту запросов: русские и английские варианты, синонимы, названия, отраслевой сленг;
+   - иди минимум тремя независимыми путями — один поисковик не исследование;
+   - нужную страницу читай целиком, а не по куску из выдачи;
+   - иди туда, где живут люди: отзывы, форумы, комментарии, YouTube, Telegram-каналы;
+   - цифры, цены и даты проверяй по двум независимым источникам;
+   - разделяй: факт, обещание продавца, чей-то отзыв, твоя догадка;
+   - назови слепые зоны: куда не смог зайти и где данные старые.
+
+4. Как отвечать: сначала вывод в 2–3 предложениях, потом разбор по пунктам со ссылками, потом что не проверено и почему, насколько ты уверен, и один конкретный следующий шаг. По-русски, плотно, без воды.
+
+5. Границы: не заходи туда, где нужен логин, если мне не дали доступ; не выдумывай данные вместо «не смог найти»; не обходи защиту сайтов; мои личные и рабочие данные не отправляй в бесплатные анонимные поисковики (anysearch, open-websearch, rivalsearch) — для чувствительного бери Tavily, Firecrawl, Exa.
+
+Покажи мне текст скилла до сохранения. После моего «да» сохрани и скажи, как его проверить.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s21-0"><span>Файл ~/.claude/skills/deep-research/SKILL.md создан</span></label></li><li><label><input type="checkbox" data-key="s21-1"><span>В нём есть таблица инструментов, протокол глубины, формат ответа и границы</span></label></li></ul></div><h3 class="sub">2.3 Первое исследование</h3><div class="prompt"><button class="copy" data-for="p2c" type="button">Скопировать промт</button><pre id="p2c">Дипресёрч: [моя тема — например «какие услуги с ИИ уже продают в моей нише в России, по каким ценам и что о них пишут клиенты»].
+Работай по своему скиллу deep-research. В конце отдельно напиши:
+- какими инструментами ты пользовался и что каждый дал;
+- что получилось плохо или не нашлось.
+После этого предложи 2–3 правки в скилл, чтобы в следующий раз было лучше. Правки внеси только после моего «да».</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s22-0"><span>Ответ начинается с вывода, есть ссылки на источники</span></label></li><li><label><input type="checkbox" data-key="s22-1"><span>Агент назвал, какие инструменты использовал и чего не нашёл</span></label></li><li><label><input type="checkbox" data-key="s22-2"><span>Хотя бы одна правка внесена в скилл</span></label></li></ul></div></div></section>
+<section class="step" id="s3"><div class="num">3</div><div class="body"><p class="tag">Коннекторы</p><h2>Google Диск, Документы, Таблицы</h2><p class="lead">Агент видит твои файлы на Google Диске и сам создаёт документы и таблицы. Подключаешь ты кнопками в настройках, агент подсказывает и проверяет.</p><div class="prompt"><button class="copy" data-for="p3" type="button">Скопировать промт</button><pre id="p3">Помоги мне подключить к тебе Google Диск, Google Документы и Google Таблицы. Я не программист: веди меня по шагам и объясняй, на что я нажимаю.
+1. Объясни, где в приложении Claude открыть коннекторы: Настройки → Коннекторы (Settings → Connectors). Английские названия кнопок переводи.
+2. По очереди: Google Drive, Google Docs, Google Sheets. Для каждого скажи, какую кнопку нажать и что я увижу на странице входа Google. Входить и давать доступ буду я сам. Объясни, какие права я даю и что ты сможешь делать с моими файлами.
+3. Если какого-то коннектора нет в списке — скажи это прямо и предложи замену.
+4. Когда я напишу «подключил», проверь каждый:
+   - Диск: найди мой последний изменённый файл и назови его;
+   - Документы: создай документ «Проверка ИИ» с одной строкой «Привет! Это написал агент» и дай ссылку;
+   - Таблицы: создай таблицу «Проверка ИИ» с двумя колонками «дата» и «что сделано», впиши одну строку и дай ссылку.
+5. Допиши в мой AGENTS.md: «Google Диск, Документы и Таблицы подключены. Чужие файлы и общие папки без моего “да” не меняй и не удаляй».</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s30-0"><span>В Настройках → Коннекторы подключены Google Drive, Docs, Sheets</span></label></li><li><label><input type="checkbox" data-key="s30-1"><span>Агент назвал последний файл на Диске</span></label></li><li><label><input type="checkbox" data-key="s30-2"><span>Созданы документ и таблица «Проверка ИИ», ссылки открываются</span></label></li><li><label><input type="checkbox" data-key="s30-3"><span>В AGENTS.md есть строка про Google</span></label></li></ul></div></div></section>
+<section class="step" id="s4"><div class="num">4</div><div class="body"><p class="tag">Коннектор к твоим чатам</p><h2>Telegram</h2><p class="lead">Агент читает твои чаты: находит, пересказывает, напоминает. Отправляет только после твоего «отправляй». Самый ответственный шаг: это доступ к твоему аккаунту.</p><div class="prompt"><button class="copy" data-for="p4" type="button">Скопировать промт</button><pre id="p4">Подключи мне Telegram через открытый сервер telegram-mcp (github.com/chigwell/telegram-mcp), как у моего наставника. Я не программист: перед каждой командой объясняй по-русски, что она делает. Это доступ к моему аккаунту, поэтому сначала покажи мне план и жди моего «да».
+
+Правила безопасности (главное):
+- Ключи, номер телефона, код из Telegram и пароль я ввожу сам. Ты их не видишь, не просишь прислать в чат и не записываешь. Файл с ключами (.env) заполняю я сам по твоей инструкции — сторож не даст тебе его читать, и это правильно.
+- Режим только чтение плюс три инструмента отправки: send_message, reply_to_message, send_file. Удаление сообщений, выход из чатов, изменение профиля и контактов — выключить.
+- Отправлять можно только файлы .pdf, .png, .jpg, .jpeg, .docx, .xlsx, .mp4.
+- Расшифровку голосовых через внешние сервисы выключить.
+- На три инструмента отправки поставь подтверждение: перед каждой отправкой Claude спрашивает меня. И допиши в AGENTS.md: «Перед любой отправкой в Telegram покажи получателя и текст целиком и жди моего “отправляй”».
+
+Шаги:
+1. Перед установкой посмотри, что внутри репозитория и какая лицензия. Если что-то подозрительно — не ставь и скажи почему.
+2. Поставь сервер в папку ~/tools/telegram-mcp. Добавь в него библиотеку hachoir — без неё видео в Telegram уходят растянутыми.
+3. Объясни, как мне получить api_id и api_hash на my.telegram.org (по шагам, с переводом кнопок), и как мне самому в терминале создать строку сессии — я введу номер и код сам.
+4. Дай мне шаблон файла .env с метками вместо ключей, без самих ключей. Я впишу их сам и сохраню.
+5. Подключи сервер к Claude (claude mcp add ... --scope user) и скажи мне перезапустить Claude.
+6. Проверка после перезапуска: покажи список моих 5 последних чатов; потом предложи отправить в «Избранное» сообщение «Проверка связи» — отправь только после моего «отправляй».
+7. В конце: что поставлено, где лежит, как отключить доступ (удалить сервер из Claude и завершить сессию в Telegram: Настройки → Устройства).</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s40-0"><span>Ключи и код вводил сам ученик, в чате их нет</span></label></li><li><label><input type="checkbox" data-key="s40-1"><span>Агент показал 5 последних чатов</span></label></li><li><label><input type="checkbox" data-key="s40-2"><span>Сообщение в «Избранное» ушло только после «отправляй»</span></label></li><li><label><input type="checkbox" data-key="s40-3"><span>В AGENTS.md есть правило про подтверждение отправки</span></label></li></ul></div></div></section>
+  </main>
+  <div class="rules">
+    <h3>Красные линии — всегда только ты</h3>
+    <ul>
+      <li>Пароли, ключи и коды вводишь сам. Агенту их не пишешь.</li>
+      <li>Деньги, покупки и подписки — только твоим решением.</li>
+      <li>Отправка писем и сообщений от твоего имени — только после твоего «отправляй».</li>
+      <li>Удаление файлов — только после твоего «да».</li>
+    </ul>
+  </div>
+  <footer>Застрял или агент делает что-то странное — сделай скриншот и пришли в общий чат.</footer>
+</div>
+<script>
+  // копирование промтов
+  document.querySelectorAll(".copy").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var text = document.getElementById(b.dataset.for).textContent;
+      var done = function () { b.textContent = "Скопировано ✓"; b.classList.add("ok"); setTimeout(function () { b.textContent = "Скопировать промт"; b.classList.remove("ok"); }, 1800); };
+      if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+      function fallback() { var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) {} document.body.removeChild(t); }
+    });
+  });
+  // длинные промты: показать целиком
+  document.querySelectorAll(".prompt pre").forEach(function (pre) {
+    if (pre.scrollHeight <= pre.clientHeight + 4) return;
+    var m = document.createElement("button"); m.className = "more"; m.type = "button"; m.textContent = "Показать промт целиком ↓";
+    m.addEventListener("click", function () { pre.classList.toggle("open"); m.textContent = pre.classList.contains("open") ? "Свернуть ↑" : "Показать промт целиком ↓"; });
+    pre.parentNode.after(m);
+  });
+  // вкладки Windows / Mac
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      var box = t.closest(".body");
+      box.querySelectorAll(".tab").forEach(function (x) { x.classList.toggle("on", x === t); });
+      box.querySelectorAll(".pane").forEach(function (p) { p.classList.toggle("on", p.id === t.dataset.tab); });
+    });
+  });
+  // галочки и прогресс
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var boxes = Array.prototype.slice.call(document.querySelectorAll(".done input"));
+  function progress() {
+    var visible = boxes.filter(function (b) { return b.closest(".pane") === null || b.closest(".pane").classList.contains("on"); });
+    var n = visible.filter(function (b) { return b.checked; }).length;
+    var p = visible.length ? Math.round(n / visible.length * 100) : 0;
+    document.getElementById("pbar").style.width = p + "%";
+    document.getElementById("ptext").textContent = "Пройдено " + p + "%";
+  }
+  boxes.forEach(function (b) {
+    b.checked = store("u2-" + b.dataset.key) === "1";
+    b.addEventListener("change", function () { store("u2-" + b.dataset.key, b.checked ? "1" : "0"); progress(); });
+  });
+  document.querySelectorAll(".tab").forEach(function (t) { t.addEventListener("click", progress); });
+  progress();
+</script>
+</body>
+</html>
