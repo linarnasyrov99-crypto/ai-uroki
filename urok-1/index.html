@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 1 · Настраиваем ИИ-агента</title>
+<meta name="description" content="Первый урок: правила для агента, оглавление файлов и защита, диктовка голосом и порядок в компьютере.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF6EE; --card: #FFFFFF; --ink: #1F2A44; --muted: #5B6478; --line: #E7DFD2;
+    --accent: #FF6B4A; --accent-ink: #C2401F; --teal: #1A8C80; --soft: #FFF1CC; --code: #F6F1E7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15192A; --card: #1E2438; --ink: #F1ECE2; --muted: #A9B0C3; --line: #2E3550;
+      --accent: #FF8466; --accent-ink: #FF9C82; --teal: #5FD3C4; --soft: #2B2A26; --code: #171C2D; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 "Manrope", system-ui, sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
+  header { padding: 56px 0 28px; }
+  .kicker { display: inline-block; font-weight: 800; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
+  h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; letter-spacing: -.02em; margin: 10px 0 16px; font-weight: 800; }
+  .intro { font-size: 19px; color: var(--muted); margin: 0; }
+  .how { margin: 28px 0 8px; padding: 22px 22px 8px; background: var(--soft); border-radius: 20px; }
+  .how h3 { margin: 0 0 10px; font-size: 17px; }
+  .how ol { margin: 0; padding-left: 22px; }
+  .how li { margin-bottom: 10px; }
+  .progress { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 0; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .bar { flex: 1; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 99px; transition: width .3s; }
+  .step { display: grid; grid-template-columns: 52px 1fr; gap: 16px; padding: 30px 0; border-top: 1px solid var(--line); }
+  .num { width: 52px; height: 52px; border-radius: 16px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-weight: 800; font-size: 24px; }
+  .body { min-width: 0; }
+  .tag { margin: 2px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+  h2 { margin: 4px 0 10px; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; }
+  .lead { margin: 0 0 18px; color: var(--muted); }
+  .prompt { position: relative; background: var(--code); border: 1px solid var(--line); border-radius: 16px; }
+  .prompt pre { margin: 0; padding: 56px 18px 18px; max-height: 340px; overflow: auto; white-space: pre-wrap; word-break: break-word; font: 400 14px/1.6 "JetBrains Mono", ui-monospace, monospace; }
+  .prompt pre.open { max-height: none; }
+  .copy { position: absolute; top: 10px; right: 10px; border: 0; border-radius: 10px; padding: 9px 14px; background: var(--accent); color: #fff; font: 800 14px "Manrope", sans-serif; cursor: pointer; }
+  .copy.ok { background: var(--teal); }
+  .more { display: block; margin: 8px 0 0; border: 0; background: none; color: var(--accent-ink); font: 600 14px "Manrope", sans-serif; cursor: pointer; padding: 4px 0; }
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--line); border-radius: 12px; margin-bottom: 12px; }
+  .tab { border: 0; border-radius: 9px; padding: 8px 18px; background: transparent; color: var(--ink); font: 800 15px "Manrope", sans-serif; cursor: pointer; }
+  .tab.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .pane { display: none; } .pane.on { display: block; }
+  .done { margin-top: 18px; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+  .done h4 { margin: 0 0 8px; font-size: 15px; }
+  .done ul { list-style: none; margin: 0; padding: 0; }
+  .done li { margin: 8px 0; }
+  .done label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .done input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--teal); }
+  .done input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .rules { margin-top: 36px; padding: 22px; border-radius: 20px; border: 2px solid var(--accent); }
+  .rules h3 { margin: 0 0 10px; }
+  .rules ul { margin: 0; padding-left: 20px; }
+  .rules li { margin-bottom: 6px; }
+  footer { margin-top: 32px; color: var(--muted); font-size: 14px; }
+  @media (max-width: 520px) {
+    .step { grid-template-columns: 1fr; gap: 10px; }
+    .num { width: 44px; height: 44px; font-size: 20px; border-radius: 13px; }
+    h2 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="kicker">Урок 1 · Настройка рабочего окружения</span>
+    <h1>Настраиваем ИИ-агента под себя</h1>
+    <p class="intro">За этот урок агент узнает тебя и получит правила, научится защищать твои файлы, понимать голос и наведёт порядок в компьютере.</p>
+    <div class="how">
+      <h3>Как проходить урок</h3>
+      <ol>
+        <li>Создай папку для работы с ИИ, например «ИИ» в Документах. Это твоё рабочее окружение: все проекты будут жить внутри.</li>
+        <li>Открой в этой папке своего агента — Claude Code или Codex.</li>
+        <li>Иди по шагам сверху вниз: копируй промт, вставляй агенту, отвечай на его вопросы.</li>
+        <li>Когда шаг получился, отметь галочки внизу шага. Отметки сохраняются в этом браузере.</li>
+      </ol>
+    </div>
+  </header>
+  <div class="progress"><span id="ptext">Пройдено 0%</span><div class="bar"><i id="pbar"></i></div></div>
+  <main>
+<section class="step" id="s1"><div class="num">1</div><div class="body"><p class="tag">AGENTS.md</p><h2>Правила для агента</h2><p class="lead">Агент задаст 5 вопросов о тебе и соберёт файл правил: как с тобой говорить, что можно делать самому, а где остановиться и спросить. Этот файл он читает в каждом разговоре.</p><div class="prompt"><button class="copy" data-for="p1" type="button">Скопировать промт</button><pre id="p1">Нужно собрать файл AGENTS.md — мои правила для тебя.
+Для этого задай мне 5 вопросов, чтобы понять, как со мной работать. Спрашивай по одному и жди ответа.
+
+Обязательно добавь эти правила:
+
+«Отвечай по-русски и простыми словами.
+
+Моё рабочее окружение — папка, где лежит этот файл, одна на все проекты. Каждый проект живёт в своей подпапке, и у него может быть свой AGENTS.md с особенностями проекта. Этот файл — общие правила, они действуют везде.
+
+Работай сам до результата, не останавливайся за «да» на каждом шаге. Исключение — большая работа (новая система или автоматизация, правка многих файлов, задача дольше ~30 минут): сначала короткий план из 3–5 пунктов и одно моё «да», дальше сам до конца. Останавливайся только на красных линиях: деньги, отправка чего-либо от моего имени, удаление и перезапись файлов, секреты (пароли, ключи, коды). Всё остальное делай и в конце отчитывайся: что изменилось и как это проверить.
+
+Не удаляй и не перезаписывай файлы без моего подтверждения.
+
+Не храни здесь пароли, ключи, банковские данные и чужие персональные данные.
+
+Не отправляй ничего от моего имени и не совершай платежей.
+
+Не говори «готово», пока сам не проверил.
+
+В конце большой задачи коротко запиши точку продолжения: что сделано, что осталось, с чего начать в следующий раз.»
+
+И отдельным блоком:
+
+«Сторожа стоят в ~/.claude/guard/.
+Если сторож остановил команду, не ищи обход: покажи мне, что хотел сделать, и жди моего слова.
+Сторожа и settings.json без моего «да» не правь.
+
+Перед задачей про мои документы сначала смотри INDEX.md в корне рабочей папки: там что у меня есть и где лежит.»
+
+Сначала покажи мне готовый текст, после моего «да» сохрани AGENTS.md в рабочую папку.
+Если ты Claude Code — создай рядом файл CLAUDE.md с одной строкой @AGENTS.md, чтобы ты читал эти правила в каждом разговоре.
+Когда закончим, предложи сразу собрать INDEX.md и сторожей, если их ещё нет.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s1-0"><span>В рабочей папке лежит AGENTS.md с ответами на 5 вопросов и правилами выше</span></label></li><li><label><input type="checkbox" data-key="s1-1"><span>Для Claude Code рядом есть CLAUDE.md со строкой @AGENTS.md</span></label></li><li><label><input type="checkbox" data-key="s1-2"><span>В новом чате агент отвечает по-русски и знает правила (спросить: «какие у тебя правила со мной?»)</span></label></li></ul></div></div></section>
+<section class="step" id="s2"><div class="num">2</div><div class="body"><p class="tag">INDEX.md и сторожа</p><h2>Оглавление и защита</h2><p class="lead">INDEX.md — оглавление твоих файлов: агент сразу знает, где что лежит. Сторожа — маленькие программы-охранники: не дают агенту удалить всё подряд и прочитать файлы с паролями.</p><div class="prompt"><button class="copy" data-for="p2" type="button">Скопировать промт</button><pre id="p2">Мы закончили с AGENTS.md. Теперь собери две вещи: INDEX.md и сторожей. Я не программист: объясняй по-русски простыми словами и перед каждым действием коротко говори, что делаешь.
+
+ЧАСТЬ 1. INDEX.md — оглавление моих файлов
+1. Определи, какой у меня компьютер (Mac или Windows), и найди мою рабочую папку — ту, где лежит AGENTS.md.
+2. Осмотри (только смотри, ничего не переноси и не удаляй): рабочую папку, Рабочий стол, Документы, Загрузки и облачные папки, если они есть (Яндекс.Диск, Google Drive, OneDrive, iCloud). Системные папки и программы не трогай. Файлы с паролями и ключами не открывай.
+3. Создай в рабочей папке файл INDEX.md. Раздели его по местам (Рабочая папка, Документы, Загрузки, Рабочий стол, Облако). Для каждой группы файлов одна строка по образцу:
+   **Что это**: путь/. Короткое описание.
+   Пример: **Договоры**: Документы/Договоры/. Договоры с клиентами.
+4. Если не понимаешь, что в папке, не гадай, а пометь «разобрать вручную».
+5. В начале файла напиши дату обновления и строку: «Чтобы обновить — попроси агента обновить INDEX.md».
+6. Покажи мне готовый INDEX.md.
+
+ЧАСТЬ 2. Сторожа — защита от опасных действий
+Сторож — это маленькая программа, которую Claude Code сам запускает перед каждым действием агента. Если действие опасное, сторож его останавливает.
+1. Проверь, есть ли уже сторожа в папке ~/.claude/guard/ и подключены ли они в ~/.claude/settings.json. Если есть, покажи, что они делают, и ничего не меняй без моего «да».
+2. Если их нет, сначала покажи короткий план: какие файлы создашь и что впишешь в settings.json. Жди моего «да».
+3. Правила сторожа:
+   - можно удалять отдельные файлы и папки внутри рабочей папки;
+   - нельзя удалять рабочую папку целиком, домашнюю папку или весь диск;
+   - нельзя читать, показывать и копировать файлы с секретами: .env, .env.*, *.pem, *.key, id_rsa и папку .ssh;
+   - нельзя агенту самому менять сторожей и settings.json.
+4. Сторож проверяет не только команды в терминале, но и то, какие файлы агент читает и правит.
+5. Когда сторож срабатывает, он пишет по-русски: «СТОРОЖ ОСТАНОВИЛ: &lt;причина&gt;. Не ищи обход: покажи, что хотел сделать, и жди моего слова».
+6. Пиши сторожа на том, что точно есть на моём компьютере (на Mac — python3 или bash, на Windows — PowerShell). Проверь это до установки.
+7. Перед правкой settings.json сделай его копию.
+8. Проверь, что сторож работает, и покажи мне результат трёх проверок:
+   - создай файл test.env с выдуманным текстом и попробуй его прочитать — сторож должен остановить;
+   - удаление всей рабочей папки НЕ выполняй по-настоящему, а передай текст этой команды сторожу напрямую и покажи, что он её блокирует;
+   - создай и удали тестовый файл внутри рабочей папки — это должно пройти.
+   Если сторож не срабатывает, скажи мне перезапустить Claude Code и проверь снова.
+9. В конце коротко напиши: что поставлено, где лежит и как отключить сторожа, если понадобится. Добавь строку про сторожей в INDEX.md.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s2-0"><span>В рабочей папке есть INDEX.md, в начале дата</span></label></li><li><label><input type="checkbox" data-key="s2-1"><span>Сторожа лежат в ~/.claude/guard/ и подключены в settings.json</span></label></li><li><label><input type="checkbox" data-key="s2-2"><span>Три проверки сторожа показаны: .env — стоп, удаление папки — стоп, тестовый файл — прошёл</span></label></li></ul></div></div></section>
+<section class="step" id="s3"><div class="num">3</div><div class="body"><p class="tag">Handy + GigaAM v3</p><h2>Диктовка голосом</h2><p class="lead">Говорить быстрее, чем печатать. Handy превращает голос в текст в любом окне, русская модель GigaAM v3 работает прямо на компьютере, без интернета.</p><div class="prompt"><button class="copy" data-for="p3" type="button">Скопировать промт</button><pre id="p3">Поставь мне программу Handy для диктовки голосом и русскую модель к ней. Я не программист: перед каждой командой объясняй по-русски, что она делает.
+1. Определи, какой у меня компьютер — Mac или Windows.
+2. Установи Handy: на Mac — командой brew install --cask handy (если Homebrew нет — объясни, что это, и поставь его; пароль от компьютера я введу сам); на Windows — командой winget install cjpais.Handy.
+3. Скажи, какие разрешения открыть в системе и где они лежат (микрофон; на Mac ещё «Универсальный доступ»).
+4. Объясни, где в Handy выбрать модель GigaAM v3, и проверь, что она скачалась.
+5. Настрой клавишу для диктовки: на Mac — fn вместо сочетания по умолчанию; на Windows клавиши fn нет — предложи удобное сочетание (например, правый Ctrl) и объясни, как его назначить.
+6. В конце попроси меня надиктовать фразу в любое поле и проверь, что текст появился.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s3-0"><span>Handy установлен и запускается</span></label></li><li><label><input type="checkbox" data-key="s3-1"><span>Выданы разрешения (микрофон; на Mac — «Универсальный доступ»)</span></label></li><li><label><input type="checkbox" data-key="s3-2"><span>Выбрана и скачана модель GigaAM v3</span></label></li><li><label><input type="checkbox" data-key="s3-3"><span>Диктовка по клавише работает: фраза появилась в поле</span></label></li></ul></div></div></section>
+<section class="step" id="s4"><div class="num">4</div><div class="body"><p class="tag">Очистка и раскладка</p><h2>Порядок в компьютере</h2><p class="lead">Агент найдёт, что занимает место, предложит понятные папки и разложит файлы. Ничего не удаляет: всё лишнее — в папку «На удаление», с журналом, чтобы можно было вернуть.</p><div class="tabs" role="tablist"><button class="tab on" data-tab="s4-win" type="button">Windows</button><button class="tab" data-tab="s4-mac" type="button">Mac</button></div>
+<div class="pane on" id="s4-win"><div class="prompt"><button class="copy" data-for="p4w" type="button">Скопировать промт</button><pre id="p4w">Наведи порядок на моём компьютере с Windows. Я не программист: объясняй простыми словами и по-русски.
+Задача: диск C переполнен, нужно освободить место и разложить мои файлы по порядку.
+Шаг 0. Проверь, какие диски есть: второй диск (D), флешка, внешний диск. Покажи, сколько свободно на каждом.
+- Если есть второй диск или внешний, переноси мои файлы туда.
+- Если есть только C, раскладывай файлы на C. Тяжёлые файлы, которые я редко открываю, предложи перенести на флешку, внешний диск или в облако (Яндекс.Диск, Google Drive). Переносить туда буду я сам(а).
+Правила безопасности (главное):
+- Ничего не удаляй. Всё ненужное переноси в папку «На удаление» на том диске, где больше места, решать буду я.
+- Не трогай системные папки и программы: Windows, Program Files, Program Files (x86), ProgramData, AppData и папки игр.
+- Не трогай разделы диска и не меняй настройки Windows.
+- Если файлы синхронизируются с облаком (OneDrive и др.), спроси меня, прежде чем их переносить.
+- Веди журнал «журнал.csv» в папке «На удаление» с колонками «откуда» и «куда», чтобы можно было всё вернуть.
+Порядок работы:
+1. Осмотр. Покажи, что больше всего занимает C: Рабочий стол, Загрузки, Документы, Изображения, Видео, папки в корне диска.
+2. Структура. Предложи структуру папок под то, что у меня реально лежит (например: Работа, Учёба, Личное, Фото и видео, Установщики). Жди моего «да».
+3. Раскладка. После моего «да» разложи файлы. Непонятным файлам дай понятные имена. Если сомневаешься, куда положить файл, клади в папку «Разобрать вручную».
+4. Дубли и тяжёлые файлы. Найди одинаковые файлы и файлы больше 500 МБ. Покажи таблицу: файл, размер, где лежит, совет (удалить сам(а) / на флешку / в облако / оставить). Сам ничего не трогай.
+5. Что ещё съедает C. Покажи, сколько занимают временные файлы, корзина, кэш браузеров, старые обновления Windows и файл гибернации. Покажи, какие программы запускаются при старте Windows. Объясни по шагам, как я почищу это сам(а) через «Параметры → Система → Память» (Контроль памяти) и «Очистку диска» с кнопкой «Очистить системные файлы». Сам ничего не меняй.
+6. На будущее. Создай файл «Куда класть файлы.txt» на Рабочем столе: инструкция на 5–7 строк по новой структуре.
+В конце: сколько места свободно на C (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s4w-0"><span>Записано, сколько было свободно на C до и после</span></label></li><li><label><input type="checkbox" data-key="s4w-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s4w-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s4w-3"><span>Ученик сам почистил систему через «Контроль памяти» и «Очистку диска»</span></label></li></ul></div></div>
+<div class="pane" id="s4-mac"><div class="prompt"><button class="copy" data-for="p4m" type="button">Скопировать промт</button><pre id="p4m">Наведи порядок на моём Mac. Я не программист: объясняй простыми словами и по-русски.
+Задача: на диске мало места, нужно освободить его и разложить мои файлы по порядку.
+Шаг 0. Покажи, сколько свободно на диске и подключены ли флешки или внешние диски.
+- Если есть внешний диск, тяжёлые файлы, которые я редко открываю, предлагай переносить туда.
+- Если нет, раскладывай файлы на этом же диске. Тяжёлые редкие файлы предложи перенести на флешку, внешний диск или в облако (Яндекс.Диск, Google Drive). Переносить туда буду я сам(а).
+Правила безопасности (главное):
+- Ничего не удаляй. Всё ненужное переноси в папку «На удаление» в моей домашней папке, решать буду я.
+- Не трогай системные папки и программы: «Программы» (Applications), Library и ~/Library, System и скрытые папки.
+- Если файлы синхронизируются с iCloud Drive или другим облаком, спроси меня, прежде чем их переносить.
+- Не меняй настройки macOS.
+- Веди журнал «журнал.csv» в папке «На удаление» с колонками «откуда» и «куда», чтобы можно было всё вернуть.
+Порядок работы:
+1. Осмотр. Покажи, что больше всего занимает место: Рабочий стол, Загрузки, Документы, Изображения, Фильмы, Музыка.
+2. Структура. Предложи структуру папок под то, что у меня реально лежит (например: Работа, Учёба, Личное, Фото и видео, Установщики). Жди моего «да».
+3. Раскладка. После моего «да» разложи файлы. Непонятным файлам дай понятные имена. Если сомневаешься, куда положить файл, клади в папку «Разобрать вручную».
+4. Дубли и тяжёлые файлы. Найди одинаковые файлы и файлы больше 500 МБ. Покажи таблицу: файл, размер, где лежит, совет (удалить сам(а) / на флешку / в облако / оставить). Сам ничего не трогай.
+5. Что ещё занимает место. Покажи, сколько занимают Корзина, старые установщики (.dmg) в Загрузках, кэш браузеров, резервные копии iPhone и вложения Сообщений. Покажи, какие программы запускаются при входе в систему. Объясни по шагам, как я почищу это сам(а) через «Системные настройки → Основные → Хранилище». Сам ничего не меняй.
+6. На будущее. Создай на Рабочем столе файл «Куда класть файлы.txt»: инструкция на 5–7 строк по новой структуре.
+В конце: сколько места свободно (до и после), что перенёс, где журнал и как вернуть всё обратно.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s4m-0"><span>Записано, сколько было свободно до и после</span></label></li><li><label><input type="checkbox" data-key="s4m-1"><span>Есть папка «На удаление» и в ней журнал.csv</span></label></li><li><label><input type="checkbox" data-key="s4m-2"><span>На Рабочем столе лежит «Куда класть файлы.txt»</span></label></li><li><label><input type="checkbox" data-key="s4m-3"><span>Ученик сам почистил систему через «Хранилище»</span></label></li></ul></div></div></div></section>
+  </main>
+  <div class="rules">
+    <h3>Красные линии — всегда только ты</h3>
+    <ul>
+      <li>Пароли, ключи и коды вводишь сам. Агенту их не пишешь.</li>
+      <li>Деньги, покупки и подписки — только твоим решением.</li>
+      <li>Отправка писем и сообщений от твоего имени — только после твоего «отправляй».</li>
+      <li>Удаление файлов — только после твоего «да».</li>
+    </ul>
+  </div>
+  <footer>Застрял или агент делает что-то странное — сделай скриншот и пришли в общий чат.</footer>
+</div>
+<script>
+  // копирование промтов
+  document.querySelectorAll(".copy").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var text = document.getElementById(b.dataset.for).textContent;
+      var done = function () { b.textContent = "Скопировано ✓"; b.classList.add("ok"); setTimeout(function () { b.textContent = "Скопировать промт"; b.classList.remove("ok"); }, 1800); };
+      if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+      function fallback() { var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) {} document.body.removeChild(t); }
+    });
+  });
+  // длинные промты: показать целиком
+  document.querySelectorAll(".prompt pre").forEach(function (pre) {
+    if (pre.scrollHeight <= pre.clientHeight + 4) return;
+    var m = document.createElement("button"); m.className = "more"; m.type = "button"; m.textContent = "Показать промт целиком ↓";
+    m.addEventListener("click", function () { pre.classList.toggle("open"); m.textContent = pre.classList.contains("open") ? "Свернуть ↑" : "Показать промт целиком ↓"; });
+    pre.parentNode.after(m);
+  });
+  // вкладки Windows / Mac
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      var box = t.closest(".body");
+      box.querySelectorAll(".tab").forEach(function (x) { x.classList.toggle("on", x === t); });
+      box.querySelectorAll(".pane").forEach(function (p) { p.classList.toggle("on", p.id === t.dataset.tab); });
+    });
+  });
+  // галочки и прогресс
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var boxes = Array.prototype.slice.call(document.querySelectorAll(".done input"));
+  function progress() {
+    var visible = boxes.filter(function (b) { return b.closest(".pane") === null || b.closest(".pane").classList.contains("on"); });
+    var n = visible.filter(function (b) { return b.checked; }).length;
+    var p = visible.length ? Math.round(n / visible.length * 100) : 0;
+    document.getElementById("pbar").style.width = p + "%";
+    document.getElementById("ptext").textContent = "Пройдено " + p + "%";
+  }
+  boxes.forEach(function (b) {
+    b.checked = store("u1-" + b.dataset.key) === "1";
+    b.addEventListener("change", function () { store("u1-" + b.dataset.key, b.checked ? "1" : "0"); progress(); });
+  });
+  document.querySelectorAll(".tab").forEach(function (t) { t.addEventListener("click", progress); });
+  progress();
+</script>
+</body>
+</html>
