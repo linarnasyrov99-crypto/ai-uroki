@@ -131,7 +131,9 @@
 - После установки проверь обе команды ещё раз. Если не находятся — скажи мне полностью закрыть и заново открыть Claude, потом проверь снова.
 - Только для Windows: серверы, которые запускаются через npx, подключай с обёрткой cmd /c — то есть вместо «-- npx -y …» пиши «-- cmd /c npx -y …». Без неё на Windows они не запустятся.
 
-Шаг 1. Шесть инструментов без регистрации, ставь сразу:
+Шаг 1. Восемь инструментов без регистрации и без ключей, ставь сразу:
+claude mcp add --scope user --transport http exa https://mcp.exa.ai/mcp
+claude mcp add --scope user --transport http firecrawl https://mcp.firecrawl.dev/v2/mcp
 claude mcp add --scope user --transport http parallel-search https://search.parallel.ai/mcp
 claude mcp add --scope user --transport http you-search-free &quot;https://api.you.com/mcp?profile=free&quot;
 claude mcp add --scope user --transport http anysearch https://api.anysearch.com/mcp
@@ -139,21 +141,21 @@ claude mcp add --scope user --transport http rivalsearch https://RivalSearchMCP.
 claude mcp add --scope user -e MODE=stdio -e DEFAULT_SEARCH_ENGINE=duckduckgo open-websearch -- npx -y open-websearch@latest
 claude mcp add --scope user playwright -- npx -y @playwright/mcp@latest
 
-Шаг 2. Пять инструментов с бесплатным ключом, по одному, в этом порядке:
-1) Tavily — поиск сразу со ссылками на источники. Ключ: https://app.tavily.com
-   claude mcp add --scope user -e TAVILY_API_KEY=КЛЮЧ tavily -- npx -y tavily-mcp
-2) Firecrawl — превращает любой сайт в чистый текст. Ключ: https://www.firecrawl.dev/app/api-keys
-   claude mcp add --scope user -e FIRECRAWL_API_KEY=КЛЮЧ firecrawl -- npx -y firecrawl-mcp
-3) Exa — поиск по смыслу, а не по словам. Ключ: https://dashboard.exa.ai/api-keys
-   claude mcp add --scope user -e EXA_API_KEY=КЛЮЧ exa -- npx -y exa-mcp-server
-4) Apify — соцсети, карты, маркетплейсы, отзывы. Ключ: https://console.apify.com/settings/integrations
+Exa (поиск по смыслу) и Firecrawl (превращает любой сайт в чистый текст) без аккаунта работают с дневным лимитом. Если упрусь в лимит — тогда заведу бесплатный аккаунт.
+
+Шаг 2. Tavily — поиск сразу со ссылками на источники. Ключ не нужен, вход через браузер:
+claude mcp add --scope user --transport http tavily https://mcp.tavily.com/mcp/
+После перезапуска Claude скажи мне написать /mcp, выбрать tavily и нажать «Authenticate» (Войти) — откроется браузер, я зарегистрируюсь или войду сам.
+
+Шаг 3. Два инструмента с бесплатным ключом, по одному, по желанию:
+1) Apify — соцсети, карты, маркетплейсы, отзывы. Ключ: https://console.apify.com/settings/integrations
    claude mcp add --scope user -e APIFY_TOKEN=КЛЮЧ apify -- npx -y @apify/actors-mcp-server --tools docs,actors,apify/rag-web-browser --ui false
-5) Jina — читает PDF и научные статьи. Ключ: https://jina.ai/api-dashboard
+2) Jina — читает PDF и научные статьи. Ключ: https://jina.ai/api-dashboard
    claude mcp add --scope user jina -- npx -y mcp-remote https://mcp.jina.ai/v1 --header &quot;Authorization: Bearer КЛЮЧ&quot;
 
-Шаг 3. Проверь claude mcp list и покажи итог живыми словами: что подключено, что пропущено и чего я из-за этого пока не смогу.
+Шаг 4. Проверь claude mcp list и покажи итог живыми словами: что подключено, что пропущено и чего я из-за этого пока не смогу.
 Скажи мне полностью закрыть и заново открыть Claude — инструменты поднимаются при старте.
-Если сервер не отвечает и я в России — почти всегда нужен VPN, скажи это прямо.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s20-0"><span>claude mcp list показывает 6 бесплатных инструментов</span></label></li><li><label><input type="checkbox" data-key="s20-1"><span>Подключены ключевые: Tavily, Firecrawl, Exa (остальные по желанию)</span></label></li><li><label><input type="checkbox" data-key="s20-2"><span>После перезапуска агент видит эти инструменты</span></label></li></ul></div><h3 class="sub">2.2 Свой скилл</h3><div class="where"><span>🆕 <b>Куда:</b> Новая сессия, после перезапуска Claude</span><span>🧠 <b>Модель:</b> Claude Opus 5.5</span><span>📁 <b>Папка:</b> твоё рабочее окружение</span></div><div class="prompt"><button class="copy" data-for="p2b" type="button">Скопировать промт</button><pre id="p2b">Создай мне скилл deep-research — правила, как ты проводишь глубокие исследования с инструментами, которые мы поставили. Положи его в ~/.claude/skills/deep-research/SKILL.md.
+Если сервер не отвечает и я в России — почти всегда нужен VPN, скажи это прямо.</pre></div><div class="done"><h4>Готово, если:</h4><ul><li><label><input type="checkbox" data-key="s20-0"><span>claude mcp list показывает 8 инструментов без ключей, включая Exa и Firecrawl</span></label></li><li><label><input type="checkbox" data-key="s20-1"><span>Tavily подключён через вход в браузере (/mcp → Authenticate)</span></label></li><li><label><input type="checkbox" data-key="s20-2"><span>Apify и Jina — по желанию</span></label></li><li><label><input type="checkbox" data-key="s20-3"><span>После перезапуска агент видит эти инструменты</span></label></li></ul></div><h3 class="sub">2.2 Свой скилл</h3><div class="where"><span>🆕 <b>Куда:</b> Новая сессия, после перезапуска Claude</span><span>🧠 <b>Модель:</b> Claude Opus 5.5</span><span>📁 <b>Папка:</b> твоё рабочее окружение</span></div><div class="prompt"><button class="copy" data-for="p2b" type="button">Скопировать промт</button><pre id="p2b">Создай мне скилл deep-research — правила, как ты проводишь глубокие исследования с инструментами, которые мы поставили. Положи его в ~/.claude/skills/deep-research/SKILL.md.
 
 Что должно быть в скилле:
 
