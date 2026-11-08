@@ -87,7 +87,7 @@
 <body>
 <div class="wrap">
   <header>
-    <nav class="nav"><a href="../urok-1/" class="on">Урок 1</a><a href="../urok-2/">Урок 2 🔒</a><a href="../urok-3/">Урок 3 🔒</a><a href="../urok-4/">Урок 4 🔒</a><a href="../urok-5/">Урок 5 🔒</a><a href="../urok-6/">Урок 6 🔒</a><a href="../urok-7/">Урок 7 🔒</a><a href="../urok-8/">Урок 8 🔒</a><a href="../kontent/">Контент 🔒</a></nav>
+    <nav class="nav"><a data-slug="urok-1" href="../urok-1/" class="on">Урок 1</a><a data-slug="urok-2" href="../urok-2/">Урок 2 <span class="lk">🔒</span></a><a data-slug="urok-3" href="../urok-3/">Урок 3 <span class="lk">🔒</span></a><a data-slug="urok-4" href="../urok-4/">Урок 4 <span class="lk">🔒</span></a><a data-slug="urok-5" href="../urok-5/">Урок 5 <span class="lk">🔒</span></a><a data-slug="urok-6" href="../urok-6/">Урок 6 <span class="lk">🔒</span></a><a data-slug="urok-7" href="../urok-7/">Урок 7 <span class="lk">🔒</span></a><a data-slug="urok-8" href="../urok-8/">Урок 8 <span class="lk">🔒</span></a><a data-slug="kontent" href="../kontent/">Контент <span class="lk">🔒</span></a></nav>
     <span class="kicker">Урок 1 · Настройка рабочего окружения</span>
     <h1>Настраиваем ИИ-агента под себя</h1>
     <p class="intro">За этот урок агент узнает тебя и получит правила, научится защищать твои файлы, понимать голос и наведёт порядок в компьютере.</p>
@@ -365,6 +365,10 @@
   });
   document.querySelectorAll(".tab").forEach(function (t) { t.addEventListener("click", progress); });
   progress();
+  // снять замок с уроков, которые уже открыты на этом устройстве
+  document.querySelectorAll(".nav a[data-slug]").forEach(function (a) {
+    try { if (localStorage.getItem("aiu-k-" + a.dataset.slug) || sessionStorage.getItem("aiu-k-" + a.dataset.slug)) { var s = a.querySelector(".lk"); if (s) s.remove(); } } catch (e) {}
+  });
 </script>
 </body>
 </html>
