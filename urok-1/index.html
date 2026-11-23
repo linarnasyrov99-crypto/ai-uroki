@@ -25,6 +25,11 @@
   .kicker { display: inline-block; font-weight: 800; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
   h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; letter-spacing: -.02em; margin: 10px 0 16px; font-weight: 800; }
   .intro { font-size: 19px; color: var(--muted); margin: 0; }
+  .lesson-video { margin-top: 22px; }
+  .lesson-video button { padding: 10px 16px; border: 0; border-radius: 12px; background: var(--ink); color: var(--bg); font: inherit; font-weight: 800; cursor: pointer; }
+  .lesson-video :disabled { opacity: .65; cursor: wait; }
+  .lesson-video p { margin: 8px 0 0; color: var(--muted); }
+  .lesson-video video { width: min(100%, 300px, 42vh); aspect-ratio: 9 / 16; border-radius: 12px; background: #000; }
   .how { margin: 28px 0 8px; padding: 22px 22px 8px; background: var(--soft); border-radius: 20px; }
   .how h3 { margin: 0 0 10px; font-size: 17px; }
   .how ol { margin: 0; padding-left: 22px; }
@@ -91,6 +96,7 @@
     <span class="kicker">Урок 1 · Настройка рабочего окружения</span>
     <h1>Настраиваем ИИ-агента под себя</h1>
     <p class="intro">За этот урок агент узнает тебя и получит правила, научится защищать твои файлы, понимать голос и наведёт порядок в компьютере.</p>
+    <div class="lesson-video" data-source="./lesson-intro.mp4"><button type="button">Смотреть видеовступление</button><p role="status" hidden></p><video controls playsinline hidden aria-label="Видеовступление к уроку"></video></div>
     <div class="how">
       <h3>Как проходить урок</h3>
       <ol><li>Работаешь в Codex, а не в Claude? Промты те же: в шагах, где Claude и Codex настраиваются по-разному, у агента есть отдельный вариант для Codex — он возьмёт его сам.</li><li>Создай папку для работы с ИИ, например «ИИ» в Документах. Это твоё рабочее окружение: все проекты будут жить внутри.</li><li>Открой в этой папке своего агента — Claude Code или Codex.</li><li>Иди по шагам сверху вниз: копируй промт, вставляй агенту, отвечай на его вопросы.</li><li>Когда шаг получился, отметь галочки внизу шага. Отметки сохраняются в этом браузере.</li></ol>
@@ -359,6 +365,37 @@
   <footer>Застрял или агент делает что-то странное — сделай скриншот и пришли в общий чат.</footer>
 </div>
 <script>
+  const lessonVideo = document.querySelector(".lesson-video");
+  if (lessonVideo) {
+    const button = lessonVideo.querySelector("button");
+    const status = lessonVideo.querySelector("[role=status]");
+    const video = lessonVideo.querySelector("video");
+    button.addEventListener("click", async function () {
+      button.disabled = true;
+      status.hidden = false;
+      status.textContent = "Загружаю видео…";
+      try {
+        const response = await fetch(lessonVideo.dataset.source);
+        if (!response.ok) throw new Error("Не удалось скачать видео");
+        let media = await response.blob();
+        if (lessonVideo.dataset.key) {
+          const data = new Uint8Array(await media.arrayBuffer());
+          const raw = Uint8Array.from(atob(lessonVideo.dataset.key), letter => letter.charCodeAt(0));
+          const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
+          const mp4 = await crypto.subtle.decrypt({ name: "AES-GCM", iv: data.subarray(0, 12) }, key, data.subarray(12));
+          media = new Blob([mp4], { type: "video/mp4" });
+        }
+        video.src = URL.createObjectURL(media);
+        video.hidden = false;
+        button.hidden = true;
+        status.hidden = true;
+        video.play().catch(() => {});
+      } catch (error) {
+        status.textContent = "Видео не загрузилось. Попробуй ещё раз.";
+        button.disabled = false;
+      }
+    });
+  }
   // копирование промтов
   document.querySelectorAll(".copy").forEach(function (b) {
     b.addEventListener("click", function () {
